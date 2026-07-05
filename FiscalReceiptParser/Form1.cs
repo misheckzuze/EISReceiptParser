@@ -43,6 +43,7 @@ namespace FiscalReceiptParser
         private Button _btnOpenSettings = null!;
         private Button _btnToggleMonitoring = null!;
         private Button _btnDownloadInventory = null!;
+        private Button _btnManageService = null!;
 
         private StatCard _cardFiscalised = null!;
         private StatCard _cardOnline = null!;
@@ -203,6 +204,24 @@ namespace FiscalReceiptParser
             _btnDownloadInventory.MouseLeave += (s, e) => _btnDownloadInventory.BackColor = BrandAccent;
             _btnDownloadInventory.Click += BtnDownloadInventory_Click;
 
+            // "Manage Service" sits right next to Download Inventory — this is where
+            // install/uninstall/start/stop/restart for the background Windows Service lives.
+            _btnManageService = new Button
+            {
+                Text = "Manage Service",
+                Location = new Point(_btnDownloadInventory.Right + 14, cardsPanel.Bottom + 20),
+                Size = new Size(170, 42),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = BrandDark,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            _btnManageService.FlatAppearance.BorderSize = 0;
+            _btnManageService.MouseEnter += (s, e) => _btnManageService.BackColor = Color.FromArgb(35, 60, 63);
+            _btnManageService.MouseLeave += (s, e) => _btnManageService.BackColor = BrandDark;
+            _btnManageService.Click += BtnManageService_Click;
+
             // ---------- ACTIVITY LOG ----------
             _lblActivityHeader = new Label
             {
@@ -234,6 +253,7 @@ namespace FiscalReceiptParser
             Controls.Add(_headerBg);
             Controls.Add(cardsPanel);
             Controls.Add(_btnDownloadInventory);
+            Controls.Add(_btnManageService);
             Controls.Add(_lblActivityHeader);
             Controls.Add(_activityLog);
         }
@@ -328,6 +348,15 @@ namespace FiscalReceiptParser
                 RefreshCounters();
                 StartMonitoring();
             }
+        }
+
+        // ============================================================
+        // MANAGE SERVICE
+        // ============================================================
+        private void BtnManageService_Click(object? sender, EventArgs e)
+        {
+            using var form = new ServiceManagerForm();
+            form.ShowDialog(this);
         }
 
         // ============================================================
