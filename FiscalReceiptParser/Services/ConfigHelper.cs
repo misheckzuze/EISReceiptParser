@@ -65,11 +65,37 @@ namespace FiscalReceiptParser.Services
         public static bool UpdateIsActiveInTerminalConfiguration(bool isActive)
         {
             using var conn = Database.ConnOpen();
+            // Start a transaction to ensure both updates succeed together
+            using var transaction = conn.BeginTransaction();
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "UPDATE TerminalConfiguration SET IsActive = $isActive WHERE Id = 1";
-            cmd.Parameters.AddWithValue("$isActive", isActive ? 1 : 0);
-            int rows = cmd.ExecuteNonQuery();
-            return rows > 0;
+            cmd.Transaction = transaction;
+
+            try
+            {
+                // 1. Update TerminalConfiguration
+                cmd.CommandText = "UPDATE TerminalConfiguration SET IsActive = $isActive WHERE Id = 1";
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("$isActive", isActive ? 1 : 0);
+                int rows1 = cmd.ExecuteNonQuery();
+
+                // 2. Update ActivatedTerminals
+                cmd.CommandText = "UPDATE ActivatedTerminal SET IsActive = $isActive WHERE Id = 1";
+                // Note: If 'Id = 1' isn't the correct matching criteria for ActivatedTerminals, 
+                // change the WHERE clause to match your schema (e.g., WHERE TerminalId = 1)
+                int rows2 = cmd.ExecuteNonQuery();
+
+                // Commit changes if both statements executed without errors
+                transaction.Commit();
+
+                // Returns true if at least one of the tables was modified
+                return (rows1 > 0 || rows2 > 0);
+            }
+            catch (Exception)
+            {
+                // Rollback the database state if any update fails
+                transaction.Rollback();
+                throw;
+            }
         }
     }
 }

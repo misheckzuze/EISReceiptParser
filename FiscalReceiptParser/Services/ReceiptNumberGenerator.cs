@@ -45,15 +45,9 @@ namespace FiscalReceiptParser.Services
             var lastDetails = GetLastInvoiceDetails();
             if (lastDetails != null)
             {
-                var lastDate = lastDetails.InvoiceDateTime.Date;
-                if (lastDate == transactionDate)
-                {
-                    transactionCount = ConvertSequentialToBase10(lastDetails.InvoiceNumber) + 1;
-                }
-                else
-                {
-                    transactionCount = 1; // new day → reset
-                }
+               
+              transactionCount = ConvertSequentialToBase10(lastDetails.InvoiceNumber) + 1;
+             
             }
 
             return GenerateReceiptNumber(taxpayerId, terminalPosition, transactionDate, transactionCount);

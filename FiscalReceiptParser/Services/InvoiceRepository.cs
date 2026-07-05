@@ -291,5 +291,162 @@ namespace FiscalReceiptParser.Services
             cmd.Parameters.AddWithValue("$invoiceNumber", invoiceNumber);
             cmd.ExecuteNonQuery();
         }
+        public static TerminalContactInfo GetTerminalContactInfo()
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT Email, AddressLine, Phone FROM TerminalConfiguration WHERE Id = 1";
+            using var reader = cmd.ExecuteReader();
+
+            if (reader.Read())
+            {
+                return new TerminalContactInfo
+                {
+                    Email = reader.IsDBNull(0) ? "" : reader.GetString(0),
+                    AddressLine = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                    Phone = reader.IsDBNull(2) ? "" : reader.GetString(2)
+                };
+            }
+            return new TerminalContactInfo();
+        }
+
+        public static string GetTradingName()
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT TradingName FROM TerminalConfiguration WHERE Id = 1";
+            return cmd.ExecuteScalar() as string ?? "";
+        }
+
+        public static bool IsVatRegistered()
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT IsVATRegistered FROM TaxpayerConfiguration LIMIT 1";
+            var result = cmd.ExecuteScalar();
+            return result != null && result != DBNull.Value && Convert.ToInt64(result) == 1;
+        }
+
+        public static string GetLevyNameById(string levyId)
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT Name FROM Levies WHERE Id = $id LIMIT 1";
+            cmd.Parameters.AddWithValue("$id", levyId);
+            return cmd.ExecuteScalar() as string ?? levyId;
+        }
+
+        public static List<PendingInvoice> GetPendingInvoiceNumbers()
+        {
+            var pending = new List<PendingInvoice>();
+
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT InvoiceNumber, PaymentId FROM Invoices WHERE State = 0";
+            using var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                pending.Add(new PendingInvoice
+                {
+                    InvoiceNumber = reader.GetString(0),
+                    PaymentId = reader.IsDBNull(1) ? "" : reader.GetString(1)
+                });
+            }
+
+            return pending;
+        }
+
+        public class InvoiceRow
+        {
+            public DateTime InvoiceDateTime { get; set; }
+            public bool IsReliefSupply { get; set; }
+            public double TotalVAT { get; set; }
+            public double InvoiceTotal { get; set; }
+            public double AmountPaid { get; set; }
+        }
+
+        public static InvoiceRow? GetInvoiceRow(string invoiceNumber)
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+        SELECT InvoiceDateTime, IsReliefSupply, TotalVAT, InvoiceTotal, AmountPaid
+        FROM Invoices WHERE InvoiceNumber = $invoiceNumber";
+            cmd.Parameters.AddWithValue("$invoiceNumber", invoiceNumber);
+            using var reader = cmd.ExecuteReader();
+
+            if (reader.Read())
+            {
+                return new InvoiceRow
+                {
+                    InvoiceDateTime = DateTime.Parse(reader.GetString(0)),
+                    IsReliefSupply = !reader.IsDBNull(1) && reader.GetInt64(1) == 1,
+                    TotalVAT = reader.IsDBNull(2) ? 0 : reader.GetDouble(2),
+                    InvoiceTotal = reader.IsDBNull(3) ? 0 : reader.GetDouble(3),
+                    AmountPaid = reader.IsDBNull(4) ? 0 : reader.GetDouble(4)
+                };
+            }
+            return null;
+        }
+
+        public static List<LineItemDto> GetLineItemsForInvoice(string invoiceNumber)
+        {
+            var items = new List<LineItemDto>();
+
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+        SELECT Id, ProductCode, Description, UnitPrice, Quantity, Discount,
+               TotalPrice, VATAmount, TaxRateID, IsProduct
+        FROM LineItems WHERE InvoiceNumber = $invoiceNumber";
+            cmd.Parameters.AddWithValue("$invoiceNumber", invoiceNumber);
+            using var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                items.Add(new LineItemDto
+                {
+                    Id = (int)reader.GetInt64(0),
+                    ProductCode = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                    Description = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                    UnitPrice = reader.GetDouble(3),
+                    Quantity = reader.GetDouble(4),
+                    Discount = reader.IsDBNull(5) ? 0 : reader.GetDouble(5),
+                    Total = reader.GetDouble(6),
+                    TotalVAT = reader.GetDouble(7),
+                    TaxRateId = reader.IsDBNull(8) ? "" : reader.GetString(8),
+                    IsProduct = !reader.IsDBNull(9) && reader.GetInt64(9) == 1
+                });
+            }
+
+            return items;
+        }
+
+        /// <summary>
+        /// Matches Java's Helper.getLevyBreakdowns — read the stored levies as-is
+        /// (not regenerated), rounded to 2dp exactly like the Java retry loop does.
+        /// </summary>
+        public static List<LevyBreakDown> GetLevyBreakdownsForInvoice(string invoiceNumber)
+        {
+            var levies = new List<LevyBreakDown>();
+
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT LevyId, LevyAmount FROM InvoiceLevies WHERE InvoiceNumber = $invoiceNumber";
+            cmd.Parameters.AddWithValue("$invoiceNumber", invoiceNumber);
+            using var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                levies.Add(new LevyBreakDown
+                {
+                    LevyTypeId = reader.GetString(0),
+                    LevyAmount = Math.Round(reader.GetDouble(1), 2)
+                });
+            }
+
+            return levies;
+        }
     }
 }

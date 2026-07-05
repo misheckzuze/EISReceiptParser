@@ -398,10 +398,10 @@ public async Task<SubmitTransactionResult> SubmitSalesTransactionServiceAsync(Sa
                 {
                     var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
                     var wrapped = new { data = response.Data };
-                    string json = System.Text.Json.JsonSerializer.Serialize(wrapped, jsonOptions);
+                    string json = JsonSerializer.Serialize(wrapped, jsonOptions);
 
                     await ActivationDataInserter.GetLatestConfigurationAsync(json);
-                    System.Diagnostics.Debug.WriteLine("✅ Latest config refreshed.");
+                    System.Diagnostics.Debug.WriteLine("Latest config refreshed.");
                 }
             }
             catch (System.Exception ex)

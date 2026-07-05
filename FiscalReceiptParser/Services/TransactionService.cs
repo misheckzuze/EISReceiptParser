@@ -21,8 +21,8 @@ namespace FiscalReceiptParser.Services
         ///     SourceInvoiceNumber for reference/logging)
         /// </summary>
         public static async Task<SubmitSaleResult> SubmitParsedInvoiceAsync(
-            ParsedModels.InvoiceRoot parsedInvoice,
-            string bearerToken)
+         InvoiceRoot parsedInvoice,
+         string bearerToken)
         {
             if (parsedInvoice?.InvoiceLineItems == null || parsedInvoice.InvoiceLineItems.Count == 0)
                 throw new ArgumentException("Parsed invoice has no line items.");
@@ -128,6 +128,34 @@ namespace FiscalReceiptParser.Services
                     result.Warnings.Add($"Failed to generate offline receipt signature: {ex.Message}");
                 }
             }
+
+            // Print regardless of online/offline outcome — both branches above have
+            // already set result.ValidationUrl (from MRA on success, or the locally
+            // signed offline URL on failure), matching the Java flow where
+            // EscPosReceiptPrinter.printReceipt is called identically either way.
+            double changeValue = amountTendered - invoiceTotal;
+            if (changeValue < 0) changeValue = 0;
+
+            try
+            {
+                EscPosReceiptPrinter.PrintReceipt(
+                    header,
+                    header.BuyerName,
+                    header.BuyerTIN,
+                    lineItems,
+                    result.ValidationUrl,
+                    amountTendered,
+                    changeValue,
+                    taxBreakdowns,
+                    levyBreakdowns);
+
+                System.Diagnostics.Debug.WriteLine(result.IsOffline ? "Offline receipt printed." : "Receipt printed.");
+            }
+            catch (Exception ex)
+            {
+                result.Warnings.Add($"Failed to print receipt: {ex.Message}");
+            }
+
             return result;
         }
 
@@ -204,13 +232,13 @@ namespace FiscalReceiptParser.Services
             return lineItems;
         }
 
-        private static (List<TaxBreakDown> tax, List<LevyBreakDown> levy, double totalVat, double invoiceTotal)
-            BuildSummaryParts(List<LineItemDto> lineItems)
+        /// <summary>
+        /// Extracted so both a fresh sale and a resend can regenerate the tax breakdown
+        /// from line items the same way — matches Java's Helper.generateTaxBreakdown.
+        /// </summary>
+        private static List<TaxBreakDown> BuildTaxBreakdown(List<LineItemDto> lineItems)
         {
-            double totalVat = lineItems.Sum(i => i.TotalVAT);
-            double invoiceTotal = lineItems.Sum(i => i.Total);
-
-            var taxBreakdowns = lineItems
+            return lineItems
                 .GroupBy(i => i.TaxRateId ?? "")
                 .Select(g =>
                 {
@@ -227,6 +255,15 @@ namespace FiscalReceiptParser.Services
                     };
                 })
                 .ToList();
+        }
+
+        private static (List<TaxBreakDown> tax, List<LevyBreakDown> levy, double totalVat, double invoiceTotal)
+        BuildSummaryParts(List<LineItemDto> lineItems)
+        {
+            double totalVat = lineItems.Sum(i => i.TotalVAT);
+            double invoiceTotal = lineItems.Sum(i => i.Total);
+
+            var taxBreakdowns = BuildTaxBreakdown(lineItems);
 
             var activeLevies = InvoiceRepository.GetActiveLevies();
             double totalLevyRate = activeLevies
@@ -263,5 +300,109 @@ namespace FiscalReceiptParser.Services
 
             return (taxBreakdowns, levyBreakdowns, totalVat, invoiceTotal);
         }
+
+        /// <summary>
+        /// Ported from Java's ApiClient.retryPendingTransactions. Rebuilds each locally
+        /// saved-but-not-transmitted invoice (State = 0) and resubmits it.
+        ///
+        /// NOTE: matches Java exactly in passing empty buyerTin/buyerAuthCode on resend —
+        /// this is a limitation already present in the Java source, not something
+        /// introduced here. Also matches Java in NOT attempting to print on retry
+        /// (the original sale already printed a receipt, online or offline, the first time).
+        /// </summary>
+        public static async Task RetryPendingTransactionsAsync(string bearerToken)
+        {
+            if (string.IsNullOrEmpty(bearerToken))
+            {
+                System.Diagnostics.Debug.WriteLine("Retry skipped — no token available (terminal not activated?).");
+                return;
+            }
+
+            List<PendingInvoice> pending;
+            try
+            {
+                pending = InvoiceRepository.GetPendingInvoiceNumbers();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error fetching pending transactions: {ex.Message}");
+                return;
+            }
+
+            if (pending.Count == 0) return;
+
+            using var httpClient = new System.Net.Http.HttpClient();
+            var service = new MraApiService(httpClient);
+
+            foreach (var pendingInvoice in pending)
+            {
+                try
+                {
+                    var invoiceRow = InvoiceRepository.GetInvoiceRow(pendingInvoice.InvoiceNumber);
+                    if (invoiceRow == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"⚠️ No Invoices row found for {pendingInvoice.InvoiceNumber}, skipping.");
+                        continue;
+                    }
+
+                    var lineItems = InvoiceRepository.GetLineItemsForInvoice(pendingInvoice.InvoiceNumber);
+                    var levyBreakdowns = InvoiceRepository.GetLevyBreakdownsForInvoice(pendingInvoice.InvoiceNumber);
+                    var taxBreakdowns = BuildTaxBreakdown(lineItems);
+
+                    var header = new InvoiceHeader
+                    {
+                        InvoiceNumber = pendingInvoice.InvoiceNumber,
+                        InvoiceDateTime = invoiceRow.InvoiceDateTime,
+                        SellerTIN = InvoiceRepository.GetSellerTin() ?? "",
+                        BuyerTIN = "",              // matches Java's explicit "" on resend
+                        BuyerName = "",             // not persisted per-invoice; matches Java
+                        BuyerAuthorizationCode = "", // matches Java's explicit "" on resend
+                        SiteId = InvoiceRepository.GetSiteId() ?? "",
+                        GlobalConfigVersion = InvoiceRepository.GetGlobalConfigVersion(),
+                        TaxpayerConfigVersion = InvoiceRepository.GetTaxpayerConfigVersion(),
+                        TerminalConfigVersion = InvoiceRepository.GetTerminalConfigVersion(),
+                        IsExport = false,
+                        IsReliefSupply = invoiceRow.IsReliefSupply,
+                        Vat5CertificateDetails = null,
+                        PaymentMethod = pendingInvoice.PaymentId
+                    };
+
+                    var summary = new InvoiceSummary
+                    {
+                        TaxBreakDown = taxBreakdowns,
+                        LevyBreakDown = levyBreakdowns,
+                        TotalVAT = invoiceRow.TotalVAT,
+                        InvoiceTotal = invoiceRow.InvoiceTotal,
+                        OfflineSignature = "", // re-sent, so no longer "offline" once accepted
+                        AmountTendered = invoiceRow.AmountPaid
+                    };
+
+                    var payload = new SalesInvoice
+                    {
+                        InvoiceHeader = header,
+                        InvoiceLineItems = lineItems,
+                        InvoiceSummary = summary
+                    };
+
+                    var apiResult = await service.SubmitSalesTransactionServiceAsync(payload, bearerToken);
+
+                    if (apiResult.Success)
+                    {
+                        InvoiceRepository.UpdateValidationUrl(pendingInvoice.InvoiceNumber, apiResult.ValidationUrl);
+                        InvoiceRepository.MarkAsTransmitted(pendingInvoice.InvoiceNumber);
+                        System.Diagnostics.Debug.WriteLine($"✅ Auto-resend success for: {pendingInvoice.InvoiceNumber}");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"❌ Auto-resend failed for: {pendingInvoice.InvoiceNumber} — {apiResult.Remark}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ Error retrying {pendingInvoice.InvoiceNumber}: {ex.Message}");
+                }
+            }
+        }
+
     }
 }
