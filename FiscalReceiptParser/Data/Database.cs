@@ -5,7 +5,7 @@ using Microsoft.Data.Sqlite;
 
 namespace FiscalReceiptParser.Data
 {
-    public static class Database
+    public static partial class Database
     {
         private const string DbName = "EISPointOfSaleDb.db";
         private static readonly string DbPath;
@@ -23,13 +23,45 @@ namespace FiscalReceiptParser.Data
             }
             else
             {
-                DbPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "POSSetup",
-                    DbName);
+                // IMPORTANT: CommonApplicationData (%ProgramData%) is a single
+                // machine-wide folder — unlike ApplicationData (%AppData%), which is
+                // per-user. The Windows Service runs under its own account (usually
+                // Local System), which has a different %AppData% than whichever
+                // Windows user runs the WinForms dashboard. Using ApplicationData
+                // here meant the service and the dashboard were silently reading
+                // two unrelated SQLite files.
+                string sharedDbFolder = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                    "POSSetup");
+                DbPath = Path.Combine(sharedDbFolder, DbName);
+
+               // MigrateLegacyPerUserDbIfNeeded(DbPath);
             }
 
             CreateDirectoryIfNotExists(DbPath);
+        }
+
+        private static void MigrateLegacyPerUserDbIfNeeded(string newDbPath)
+        {
+            try
+            {
+                if (File.Exists(newDbPath)) return; // shared DB already exists — nothing to do
+
+                string legacyDbPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "POSSetup", DbName);
+
+                if (File.Exists(legacyDbPath))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(newDbPath)!);
+                    File.Copy(legacyDbPath, newDbPath);
+                    Console.WriteLine($"Migrated existing database from '{legacyDbPath}' to shared location '{newDbPath}'.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Warning: could not migrate legacy per-user database: {ex.Message}");
+            }
         }
 
         private static void CreateDirectoryIfNotExists(string dbFilePath)
@@ -310,6 +342,7 @@ namespace FiscalReceiptParser.Data
                 }
 
                 Console.WriteLine($"All SQLite tables created and initialized at: {DbPath}");
+                EnsureSettingsTable(conn);
 
                 // TODO: mirrors Helper.insertDefaultAdminIfNotExists() from the Java version.
                 // Share that Helper class if you want it ported too — it'd seed a default
