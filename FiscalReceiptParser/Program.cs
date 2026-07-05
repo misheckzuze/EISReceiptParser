@@ -5,15 +5,11 @@ namespace FiscalReceiptParser
 {
     internal static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            ApplicationConfiguration.Initialize();
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
             Database.InitializeDatabase();
 
@@ -26,8 +22,6 @@ namespace FiscalReceiptParser
 
                 if (result != DialogResult.OK)
                 {
-                    // User closed the activation dialog without activating.
-                    // Don't let the POS run unactivated — exit cleanly instead.
                     return;
                 }
             }

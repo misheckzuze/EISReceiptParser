@@ -291,5 +291,50 @@ namespace FiscalReceiptParser.Services
             cmd.Parameters.AddWithValue("$invoiceNumber", invoiceNumber);
             cmd.ExecuteNonQuery();
         }
+
+        // ============================================================
+        // Dashboard stats — read straight from Invoices so the numbers
+        // survive an app restart instead of living in memory.
+        // ============================================================
+
+        /// <summary>Total invoices ever fiscalised (saved), online or offline.</summary>
+        public static int GetFiscalisedCount()
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT COUNT(*) FROM Invoices";
+            var result = cmd.ExecuteScalar();
+            return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+        }
+
+        /// <summary>Invoices currently confirmed as transmitted to MRA (State = 1).</summary>
+        public static int GetOnlineCount()
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT COUNT(*) FROM Invoices WHERE State = 1";
+            var result = cmd.ExecuteScalar();
+            return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+        }
+
+        /// <summary>Invoices that were signed offline at some point (have a signature on file).</summary>
+        public static int GetOfflineCount()
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT COUNT(*) FROM Invoices WHERE OfflineTransactionSignature IS NOT NULL AND OfflineTransactionSignature <> ''";
+            var result = cmd.ExecuteScalar();
+            return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+        }
+
+        /// <summary>Invoices not yet confirmed transmitted (State = 0) — still queued to push to MRA.</summary>
+        public static int GetPendingCount()
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT COUNT(*) FROM Invoices WHERE State = 0";
+            var result = cmd.ExecuteScalar();
+            return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+        }
     }
 }

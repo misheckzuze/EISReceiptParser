@@ -5,7 +5,7 @@ using Microsoft.Data.Sqlite;
 
 namespace FiscalReceiptParser.Data
 {
-    public static class Database
+    public static partial class Database
     {
         private const string DbName = "EISPointOfSaleDb.db";
         private static readonly string DbPath;
@@ -310,6 +310,7 @@ namespace FiscalReceiptParser.Data
                 }
 
                 Console.WriteLine($"All SQLite tables created and initialized at: {DbPath}");
+                EnsureSettingsTable(conn);
 
                 // TODO: mirrors Helper.insertDefaultAdminIfNotExists() from the Java version.
                 // Share that Helper class if you want it ported too — it'd seed a default
