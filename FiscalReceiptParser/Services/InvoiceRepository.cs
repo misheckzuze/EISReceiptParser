@@ -291,7 +291,7 @@ namespace FiscalReceiptParser.Services
             cmd.Parameters.AddWithValue("$invoiceNumber", invoiceNumber);
             cmd.ExecuteNonQuery();
         }
-<<<<<<< HEAD
+
         public static TerminalContactInfo GetTerminalContactInfo()
         {
             using var conn = Database.ConnOpen();
@@ -448,7 +448,8 @@ namespace FiscalReceiptParser.Services
             }
 
             return levies;
-=======
+        }
+
 
         // ============================================================
         // Dashboard stats — read straight from Invoices so the numbers
@@ -493,7 +494,7 @@ namespace FiscalReceiptParser.Services
             cmd.CommandText = "SELECT COUNT(*) FROM Invoices WHERE State = 0";
             var result = cmd.ExecuteScalar();
             return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
->>>>>>> 23be223ca687b321fd946dc3865ab1bf737a47c3
+
         }
     }
 }
