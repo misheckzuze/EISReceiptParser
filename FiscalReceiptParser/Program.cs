@@ -1,5 +1,6 @@
 using FiscalReceiptParser.Data;
 using FiscalReceiptParser.Services;
+using System.ServiceProcess;
 
 namespace FiscalReceiptParser
 {
@@ -8,25 +9,33 @@ namespace FiscalReceiptParser
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-            Database.InitializeDatabase();
-
-            bool isActivated = TerminalActivationStatus.IsActivatedAsync().GetAwaiter().GetResult();
-
-            if (!isActivated)
+            if (!Environment.UserInteractive)
             {
-                using var activationForm = new ActivationForm();
-                var result = activationForm.ShowDialog();
+                ServiceBase.Run(new EisFiscalisationWindowsService());
 
-                if (result != DialogResult.OK)
-                {
-                    return;
-                }
             }
+            else
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
 
-            Application.Run(new Form1());
+                Database.InitializeDatabase();
+
+                bool isActivated = TerminalActivationStatus.IsActivatedAsync().GetAwaiter().GetResult();
+
+                if (!isActivated)
+                {
+                    using var activationForm = new ActivationForm();
+                    var result = activationForm.ShowDialog();
+
+                    if (result != DialogResult.OK)
+                    {
+                        return;
+                    }
+                }
+
+                Application.Run(new Form1());
+            }
         }
     }
 }
