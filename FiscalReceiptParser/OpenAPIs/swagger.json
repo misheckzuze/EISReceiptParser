@@ -1,0 +1,5467 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "EISAPI",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/v1/configuration/get-latest-configs": {
+      "post": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Retrieves the device latest configurations and returns them",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/configuration/request-new-terminal-token": {
+      "post": {
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Retrieves new terminal token",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/activate-terminal": {
+      "post": {
+        "tags": [
+          "OnBoarding"
+        ],
+        "summary": "Activates a terminal",
+        "requestBody": {
+          "description": "Details of the unactivated terminal",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnActivatedTerminal"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnActivatedTerminal"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnActivatedTerminal"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminalActivationResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminalActivationResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminalActivationResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onboarding/terminal-activated-confirmation": {
+      "post": {
+        "tags": [
+          "OnBoarding"
+        ],
+        "summary": "Confirmation that the terminal activation response was fully processed \r\nby the terminal and device should be flagged as activated",
+        "parameters": [
+          {
+            "name": "x-signature",
+            "in": "header",
+            "description": "Signature computed by hashing the terminal activation code using the\r\n            algorithm shared by MRA",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivatedTerminalConfirmation"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivatedTerminalConfirmation"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivatedTerminalConfirmation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales/last-submitted-online-transaction": {
+      "post": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "Returns the last submitted online Transaction",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LastSubmittedInvoiceAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LastSubmittedInvoiceAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LastSubmittedInvoiceAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales/last-submitted-offline-transaction": {
+      "post": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "Extracts the last submitted offline Transaction",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LastSubmittedInvoiceAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LastSubmittedInvoiceAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LastSubmittedInvoiceAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales/process-credit-debit-note": {
+      "post": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "Generates a credit note or debit note from an existing invoice.\r\nIf the updated VAT or total is higher than the original invoice, a debit note is generated.\r\nIf the updated VAT or total is lower than the original invoice, a credit note is generated.",
+        "requestBody": {
+          "description": "The updated invoice details used to generate the credit or debit note.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceAdjustmentRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceAdjustmentRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceAdjustmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceAdjustmentResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceAdjustmentResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceAdjustmentResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales/get-invoice-by-number": {
+      "post": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "Fetches a submitted invoice by invoice number, including validation URL and levy details.",
+        "requestBody": {
+          "description": "Request containing the invoice number.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceLookupRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceLookupRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceLookupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceLookupResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceLookupResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceLookupResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales/submit-sales-transaction": {
+      "post": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "submits Sales Transaction",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SalesInvoice"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SalesInvoice"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SalesInvoice"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/transfer-inventory": {
+      "post": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "Transfers inventory in bulk. Only one transfer type per request is allowed.\r\nTypes: Warehouse->Site, Site->Site.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryTransferRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryTransferRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryTransferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/warehouse-inventory": {
+      "get": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "Retrieves warehouse inventory for the authenticated taxpayer.\r\nLimits: \r\n- Default page size: 50 items\r\n- Maximum page size: 200 items \r\n- Minimum page number: 1",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (minimum: 1, default: 1)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Number of items per page (default: 50, maximum: 200)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WarehouseInventoryItemDtoGenericInventoryDtoResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WarehouseInventoryItemDtoGenericInventoryDtoResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WarehouseInventoryItemDtoGenericInventoryDtoResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/raw-material/get-raw-material": {
+      "get": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "Retrieves raw material warehouse inventory for the authenticated taxpayer.\r\nLimits: \r\n- Default page size: 50 items\r\n- Maximum page size: 200 items \r\n- Minimum page number: 1",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (minimum: 1, default: 1)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Number of items per page (default: 50, maximum: 200)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxpayerRawMaterialDtoGenericInventoryDtoResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxpayerRawMaterialDtoGenericInventoryDtoResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxpayerRawMaterialDtoGenericInventoryDtoResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/submit-informal-purchase": {
+      "post": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "This method saves stocks that were purchased from traders not in EIS. This is subject to approval.",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoodsReceivingModel"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoodsReceivingModel"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoodsReceivingModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/raw-material/submit-conversion": {
+      "post": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "Adds a new production record",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RawmaterialConversion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RawmaterialConversion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RawmaterialConversion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/submit-adjustment": {
+      "post": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "Submits a stock adjustment request (Increase or Decrease) for a given product barcode.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockAdjustmentRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockAdjustmentRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockAdjustmentRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/getStockAdjustmentReasons": {
+      "post": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "Retrieves the list of possible stock adjustment reasons.\r\nRequires a valid authorization token.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdjustmentReasonDtoListAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdjustmentReasonDtoListAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdjustmentReasonDtoListAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/get-suppliers": {
+      "post": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "Retrieves a list of all suppliers.\r\nRequires a valid authorization token.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierDtoListAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierDtoListAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupplierDtoListAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/add-product": {
+      "post": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "Adds a new product to master products and creates zero-quantity warehouse inventory for the taxpayer.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddProductApiRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddProductApiRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddProductApiRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddProductApiResponseDtoAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddProductApiResponseDtoAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddProductApiResponseDtoAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/get-hs-codes": {
+      "get": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "Retrieves a list of HS codes for use when adding products.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/HsCodeLookupDtoListAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HsCodeLookupDtoListAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HsCodeLookupDtoListAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stock/get-units-of-measure": {
+      "get": {
+        "tags": [
+          "StockOperations"
+        ],
+        "summary": "Retrieves active units of measure for use when adding products.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitOfMeasureDtoListAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitOfMeasureDtoListAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitOfMeasureDtoListAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/utilities/validate-vat5-certificate": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Validates the authenticity and validity of a VAT 5 Certificate.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Vat5CertificateValidationRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Vat5CertificateValidationRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Vat5CertificateValidationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vat5CertificateValidationResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vat5CertificateValidationResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vat5CertificateValidationResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/utilities/get-terminal-blocking-message": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Retrieves the blocking message for a terminal, if it is currently blocked",
+        "requestBody": {
+          "description": "The request containing the TerminalId to check",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TerminalBlockRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TerminalBlockRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TerminalBlockRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminalBlockResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminalBlockResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminalBlockResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/utilities/check-terminal-unblock-status": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Checks if a terminal has been unblocked",
+        "requestBody": {
+          "description": "The request containing the TerminalId to check",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TerminalBlockRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TerminalBlockRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TerminalBlockRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminalUnblockStatusResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminalUnblockStatusResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TerminalUnblockStatusResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/utilities/check-tin-authorization-requirement": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Checks whether a TIN requires a purchase authorization code.",
+        "requestBody": {
+          "description": "Request containing the TIN to check.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TinAuthorizationRequirementRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TinAuthorizationRequirementRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TinAuthorizationRequirementRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TinAuthorizationRequirementResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TinAuthorizationRequirementResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TinAuthorizationRequirementResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/utilities/validate-authorization-code": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "This checks the authenticity and validity of an authorization code",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnValidatedAuthorizationCode"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnValidatedAuthorizationCode"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnValidatedAuthorizationCode"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatedAuthorizationCodeAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatedAuthorizationCodeAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatedAuthorizationCodeAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/utilities/ping": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Checks if a client is able to communicate with the server",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PongResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PongResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PongResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/utilities/product-status": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Checks the status of a product as to where it ti mapped to UNSPSC at MRA side",
+        "requestBody": {
+          "description": "Request object containing product identifier(barcode) and TIN",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductIdentifier"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductIdentifier"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductIdentifier"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductStateAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductStateAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductStateAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales/cancel-receipt": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Creates a void request for an existing invoice (receipt).",
+        "requestBody": {
+          "description": "The void request containing receipt number, reason, and supporting documents.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoidReceiptCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoidReceiptCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoidReceiptCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidReceiptResponseDtoAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidReceiptResponseDtoAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidReceiptResponseDtoAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales/get-void-receipts": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Retrieves void (cancelled receipt) requests.",
+        "requestBody": {
+          "description": "Filtering options (status, date range, pagination).",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoidReceiptFilterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoidReceiptFilterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoidReceiptFilterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetVoidReceiptResponseDtoPaginatedResponseDtoAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetVoidReceiptResponseDtoPaginatedResponseDtoAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetVoidReceiptResponseDtoPaginatedResponseDtoAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/utilities/get-terminal-site-products": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Retrieves the latest products for a terminal site",
+        "requestBody": {
+          "description": "Request object containing site ID and TIN",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductsInventoryResponseListAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductsInventoryResponseListAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductsInventoryResponseListAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/utilities/taxpayer-initial-inventory-upload": {
+      "post": {
+        "tags": [
+          "Utilities"
+        ],
+        "summary": "Handles the initial inventory upload for a taxpayer, supporting phased uploads (up to 50 products per batch) and a last batch indicator.\r\nIf not the last batch, stores items in staging table. If last batch, processes all items from staging table.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxpayerInitialInventoryUploadRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxpayerInitialInventoryUploadRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxpayerInitialInventoryUploadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitialInventoryResponseAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitialInventoryResponseAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitialInventoryResponseAPIResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectAPIResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "APIError": {
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fieldName": {
+            "type": "string",
+            "nullable": true
+          },
+          "errorMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ActivatedLevyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "chargeMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "rate": {
+            "type": "number",
+            "format": "double"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ActivatedTaxrateDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "taxpayerConfigurationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "taxRateId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ActivatedTerminal": {
+        "type": "object",
+        "properties": {
+          "terminalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminalPosition": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "taxpayerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "activationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "terminalCredentials": {
+            "$ref": "#/components/schemas/TerminalCredentials"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ActivatedTerminalConfirmation": {
+        "required": [
+          "terminalId"
+        ],
+        "type": "object",
+        "properties": {
+          "terminalId": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddProductApiRequest": {
+        "required": [
+          "description",
+          "hsCode",
+          "name",
+          "uom"
+        ],
+        "type": "object",
+        "properties": {
+          "barcode": {
+            "minLength": 4,
+            "type": "string",
+            "nullable": true
+          },
+          "hsCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "uom": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddProductApiResponseDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "hsCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxRateId": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "uom": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AddProductApiResponseDtoAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/AddProductApiResponseDto"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AdjustmentReasonDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AdjustmentReasonDtoListAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdjustmentReasonDto"
+            },
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AdjustmentServiceLineItemDto": {
+        "type": "object",
+        "properties": {
+          "serviceName": {
+            "type": "string",
+            "nullable": true
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double"
+          },
+          "taxRateId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BooleanAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Configuration": {
+        "type": "object",
+        "properties": {
+          "globalConfiguration": {
+            "$ref": "#/components/schemas/TaxConfiguration"
+          },
+          "terminalConfiguration": {
+            "$ref": "#/components/schemas/TerminalConfiguration"
+          },
+          "taxpayerConfiguration": {
+            "$ref": "#/components/schemas/TaxpayerConfiguration"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConfigurationAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/Configuration"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FinishedProduction": {
+        "required": [
+          "barcode",
+          "productDescription",
+          "quantity",
+          "unitOfMeasure"
+        ],
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "minimum": 0.01,
+            "type": "number",
+            "format": "float"
+          },
+          "unitOfMeasure": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "productDescription": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "barcode": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetVoidReceiptResponseDto": {
+        "type": "object",
+        "properties": {
+          "invoiceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "requestedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "approvedOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "rejectedReason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetVoidReceiptResponseDtoPaginatedResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetVoidReceiptResponseDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetVoidReceiptResponseDtoPaginatedResponseDtoAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/GetVoidReceiptResponseDtoPaginatedResponseDto"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GoodsReceivingItemModel": {
+        "required": [
+          "description",
+          "isFinishedProduct",
+          "itemCode",
+          "quantityOrdered",
+          "quantityReceived",
+          "totalPrice",
+          "unitOfMeasure",
+          "unitPrice"
+        ],
+        "type": "object",
+        "properties": {
+          "itemCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "quantityOrdered": {
+            "minimum": 1,
+            "type": "number",
+            "format": "double"
+          },
+          "quantityReceived": {
+            "minimum": 1,
+            "type": "number",
+            "format": "double"
+          },
+          "unitOfMeasure": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "unitPrice": {
+            "minimum": 0.01,
+            "type": "number",
+            "format": "double"
+          },
+          "totalPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "isFinishedProduct": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GoodsReceivingModel": {
+        "required": [
+          "items",
+          "receivedBy",
+          "receivingDate",
+          "supplierId",
+          "totalItems",
+          "totalValue"
+        ],
+        "type": "object",
+        "properties": {
+          "supplierId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deliveryNoteNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "receivingDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purchaseOrderNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "receivedBy": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalQuantity": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GoodsReceivingItemModel"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "HsCodeLookupDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxRateId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "HsCodeLookupDtoListAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HsCodeLookupDto"
+            },
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InitialInventoryResponse": {
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mappedItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unmappedItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isPartialUpload": {
+            "type": "boolean"
+          },
+          "skippedItems": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InitialInventoryResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/InitialInventoryResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InventoryItem": {
+        "required": [
+          "barCode",
+          "costPrice",
+          "productDescription",
+          "productName",
+          "quantityInStock",
+          "sellingPrice",
+          "unitPrice"
+        ],
+        "type": "object",
+        "properties": {
+          "barCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "productName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "productDescription": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "unitPrice": {
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "quantityInStock": {
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "costPrice": {
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "sellingPrice": {
+            "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "reorderLevel": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "overQuantityStockLevel": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InventoryRequest": {
+        "required": [
+          "siteId",
+          "tin"
+        ],
+        "type": "object",
+        "properties": {
+          "tin": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "siteId": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InventoryTransferItem": {
+        "type": "object",
+        "properties": {
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double"
+          },
+          "price": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InventoryTransferRequest": {
+        "type": "object",
+        "properties": {
+          "fromWarehouseToSite": {
+            "type": "boolean"
+          },
+          "siteToWarehouse": {
+            "type": "boolean",
+            "deprecated": true
+          },
+          "fromSiteId": {
+            "type": "string",
+            "nullable": true
+          },
+          "toSiteId": {
+            "type": "string",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryTransferItem"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InvoiceAdjustmentRequest": {
+        "required": [
+          "invoiceHeader",
+          "invoiceLineItems",
+          "invoiceSummary"
+        ],
+        "type": "object",
+        "properties": {
+          "invoiceHeader": {
+            "$ref": "#/components/schemas/InvoiceHeader"
+          },
+          "invoiceLineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineItemDto"
+            }
+          },
+          "invoiceSummary": {
+            "$ref": "#/components/schemas/InvoiceSummary"
+          },
+          "reasonForAdjustment": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InvoiceAdjustmentResponse": {
+        "type": "object",
+        "properties": {
+          "invoiceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "originalInvoiceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "noteType": {
+            "type": "string",
+            "nullable": true
+          },
+          "validationUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "invoiceTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalVat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineItemDto"
+            },
+            "nullable": true
+          },
+          "serviceLineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdjustmentServiceLineItemDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InvoiceAdjustmentResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/InvoiceAdjustmentResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InvoiceHeader": {
+        "required": [
+          "globalConfigVersion",
+          "invoiceDateTime",
+          "invoiceNumber",
+          "sellerTIN",
+          "siteId",
+          "taxpayerConfigVersion",
+          "terminalConfigVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "invoiceNumber": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "invoiceDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sellerTIN": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "buyerTIN": {
+            "type": "string",
+            "nullable": true
+          },
+          "buyerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "buyerAuthorizationCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "siteId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "globalConfigVersion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "taxpayerConfigVersion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "terminalConfigVersion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isExport": {
+            "type": "boolean"
+          },
+          "isReliefSupply": {
+            "type": "boolean"
+          },
+          "vat5CertificateDetails": {
+            "$ref": "#/components/schemas/Vat5CertificateDto"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InvoiceLookupRequest": {
+        "required": [
+          "invoiceNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "invoiceNumber": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InvoiceLookupResponse": {
+        "required": [
+          "invoiceHeader",
+          "invoiceLineItems",
+          "invoiceSummary"
+        ],
+        "type": "object",
+        "properties": {
+          "invoiceHeader": {
+            "$ref": "#/components/schemas/InvoiceHeader"
+          },
+          "invoiceLineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineItemDto"
+            }
+          },
+          "invoiceSummary": {
+            "$ref": "#/components/schemas/InvoiceSummary"
+          },
+          "dateSubmitted": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validationURL": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InvoiceLookupResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/InvoiceLookupResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InvoiceResponse": {
+        "type": "object",
+        "properties": {
+          "validationURL": {
+            "type": "string",
+            "nullable": true
+          },
+          "shouldDownloadLatestConfig": {
+            "type": "boolean"
+          },
+          "shouldBlockTerminal": {
+            "type": "boolean"
+          },
+          "validationErrors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InvoiceResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/InvoiceResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InvoiceSummary": {
+        "required": [
+          "taxBreakDown"
+        ],
+        "type": "object",
+        "properties": {
+          "taxBreakDown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaxBreakDown"
+            }
+          },
+          "levyBreakDown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LevyBreakDown"
+            },
+            "nullable": true
+          },
+          "totalVAT": {
+            "type": "number",
+            "format": "double"
+          },
+          "offlineSignature": {
+            "type": "string",
+            "nullable": true
+          },
+          "invoiceTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "amountTendered": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LastSubmittedInvoice": {
+        "required": [
+          "invoiceHeader",
+          "invoiceLineItems",
+          "invoiceSummary"
+        ],
+        "type": "object",
+        "properties": {
+          "invoiceHeader": {
+            "$ref": "#/components/schemas/InvoiceHeader"
+          },
+          "invoiceLineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineItemDto"
+            }
+          },
+          "invoiceSummary": {
+            "$ref": "#/components/schemas/InvoiceSummary"
+          },
+          "dateSubmitted": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LastSubmittedInvoiceAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/LastSubmittedInvoice"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LevyBreakDown": {
+        "type": "object",
+        "properties": {
+          "levyTypeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "levyRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "levyAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LineItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double"
+          },
+          "discount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalVAT": {
+            "type": "number",
+            "format": "double"
+          },
+          "taxRateId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isProduct": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ObjectAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OfflineLimit": {
+        "type": "object",
+        "properties": {
+          "maxTransactionAgeInHours": {
+            "type": "number",
+            "format": "double"
+          },
+          "maxCummulativeAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "POS": {
+        "required": [
+          "productID",
+          "productVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "productID": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "productVersion": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Platform": {
+        "required": [
+          "osName",
+          "osVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "osName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "osVersion": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "osBuild": {
+            "type": "string",
+            "nullable": true
+          },
+          "macAddress": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PongResponse": {
+        "type": "object",
+        "properties": {
+          "serverDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PongResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/PongResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "ProductIdentifier": {
+        "required": [
+          "productId",
+          "tin"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "tin": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductState": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "psCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "psDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "applicableTaxRateIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "quantitiesInStock": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuantityInStock"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductStateAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProductState"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductsInventoryResponse": {
+        "type": "object",
+        "properties": {
+          "productCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double"
+          },
+          "unitOfMeasure": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "siteId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productExpiryDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "minimumStockLevel": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "taxRateId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isProduct": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProductsInventoryResponseListAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductsInventoryResponse"
+            },
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "QuantityInStock": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "locationName": {
+            "type": "string",
+            "nullable": true
+          },
+          "uom": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RawMaterial": {
+        "required": [
+          "availableQuantity",
+          "productId",
+          "productName",
+          "usedQuantity"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "productName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "availableQuantity": {
+            "minimum": 0.01,
+            "type": "number",
+            "format": "double"
+          },
+          "usedQuantity": {
+            "minimum": 0.01,
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RawmaterialConversion": {
+        "type": "object",
+        "properties": {
+          "productionBatchId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rawMaterials": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RawMaterial"
+            },
+            "nullable": true
+          },
+          "finishedProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinishedProduction"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SalesInvoice": {
+        "required": [
+          "invoiceHeader",
+          "invoiceLineItems",
+          "invoiceSummary"
+        ],
+        "type": "object",
+        "properties": {
+          "invoiceHeader": {
+            "$ref": "#/components/schemas/InvoiceHeader"
+          },
+          "invoiceLineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineItemDto"
+            }
+          },
+          "invoiceSummary": {
+            "$ref": "#/components/schemas/InvoiceSummary"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StockAdjustmentRequestDto": {
+        "required": [
+          "adjustmentReason",
+          "adjustmentType",
+          "barcode",
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "barcode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double"
+          },
+          "adjustmentReason": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "adjustmentType": {
+            "minLength": 1,
+            "pattern": "Increase|Decrease",
+            "type": "string"
+          },
+          "siteId": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxpayerRemarks": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SupplierDto": {
+        "type": "object",
+        "properties": {
+          "supplierId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "supplierName": {
+            "type": "string",
+            "nullable": true
+          },
+          "supplierContactEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "supplierContactPhone": {
+            "type": "string",
+            "nullable": true
+          },
+          "supplierTin": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SupplierDtoListAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupplierDto"
+            },
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaxBreakDown": {
+        "type": "object",
+        "properties": {
+          "rateId": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxableAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaxConfiguration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "versionNo": {
+            "type": "number",
+            "format": "double"
+          },
+          "taxrates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaxRateDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaxOfficeDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaxRateDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "chargeMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "ordinal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rate": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaxpayerConfiguration": {
+        "type": "object",
+        "properties": {
+          "versionNo": {
+            "type": "number",
+            "format": "double"
+          },
+          "tin": {
+            "type": "string",
+            "nullable": true
+          },
+          "isVATRegistered": {
+            "type": "boolean"
+          },
+          "taxOfficeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "taxOffice": {
+            "$ref": "#/components/schemas/TaxOfficeDto"
+          },
+          "activatedTaxRateIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "activatedTaxrates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivatedTaxrateDto"
+            },
+            "nullable": true
+          },
+          "activatedLevies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivatedLevyDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaxpayerInitialInventoryUploadRequest": {
+        "required": [
+          "products"
+        ],
+        "type": "object",
+        "properties": {
+          "tin": {
+            "type": "string",
+            "nullable": true
+          },
+          "isLastBatch": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryItem"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaxpayerRawMaterialDto": {
+        "type": "object",
+        "properties": {
+          "rawMaterialName": {
+            "type": "string",
+            "nullable": true
+          },
+          "rawMaterialDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentQuantity": {
+            "type": "number",
+            "format": "double"
+          },
+          "uom": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaxpayerRawMaterialDtoGenericInventoryDtoResponse": {
+        "type": "object",
+        "properties": {
+          "stocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaxpayerRawMaterialDto"
+            },
+            "nullable": true
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaxpayerRawMaterialDtoGenericInventoryDtoResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/TaxpayerRawMaterialDtoGenericInventoryDtoResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalActivationResponse": {
+        "type": "object",
+        "properties": {
+          "activatedTerminal": {
+            "$ref": "#/components/schemas/ActivatedTerminal"
+          },
+          "configuration": {
+            "$ref": "#/components/schemas/Configuration"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalActivationResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/TerminalActivationResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalBlockRequest": {
+        "required": [
+          "terminalId"
+        ],
+        "type": "object",
+        "properties": {
+          "terminalId": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalBlockResponse": {
+        "type": "object",
+        "properties": {
+          "isBlocked": {
+            "type": "boolean"
+          },
+          "blockingReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "blockedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalBlockResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/TerminalBlockResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalConfiguration": {
+        "type": "object",
+        "properties": {
+          "versionNo": {
+            "type": "number",
+            "format": "double"
+          },
+          "terminalLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActiveTerminal": {
+            "type": "boolean"
+          },
+          "emailAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "tradingName": {
+            "type": "string",
+            "nullable": true
+          },
+          "addressLines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "terminalSite": {
+            "$ref": "#/components/schemas/TerminalSiteDto"
+          },
+          "offlineLimit": {
+            "$ref": "#/components/schemas/OfflineLimit"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalCredentials": {
+        "type": "object",
+        "properties": {
+          "jwtToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "secretKey": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalRuntimeEnvironment": {
+        "required": [
+          "platform",
+          "pos"
+        ],
+        "type": "object",
+        "properties": {
+          "platform": {
+            "$ref": "#/components/schemas/Platform"
+          },
+          "pos": {
+            "$ref": "#/components/schemas/POS"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalSiteDto": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "nullable": true
+          },
+          "siteName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalUnblockStatusResponse": {
+        "type": "object",
+        "properties": {
+          "isUnblocked": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TerminalUnblockStatusResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/TerminalUnblockStatusResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TinAuthorizationRequirementRequest": {
+        "required": [
+          "tin"
+        ],
+        "type": "object",
+        "properties": {
+          "tin": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TinAuthorizationRequirementResponse": {
+        "type": "object",
+        "properties": {
+          "tin": {
+            "type": "string",
+            "nullable": true
+          },
+          "tinExists": {
+            "type": "boolean"
+          },
+          "requiresAuthorizationCode": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TinAuthorizationRequirementResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/TinAuthorizationRequirementResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UnActivatedTerminal": {
+        "required": [
+          "environment",
+          "terminalActivationCode"
+        ],
+        "type": "object",
+        "properties": {
+          "terminalActivationCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "environment": {
+            "$ref": "#/components/schemas/TerminalRuntimeEnvironment"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UnValidatedAuthorizationCode": {
+        "required": [
+          "authorizationCode"
+        ],
+        "type": "object",
+        "properties": {
+          "authorizationCode": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UnitOfMeasureDto": {
+        "type": "object",
+        "properties": {
+          "unitOfMeasure": {
+            "type": "string",
+            "nullable": true
+          },
+          "unitOfMeasureDescription": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UnitOfMeasureDtoListAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UnitOfMeasureDto"
+            },
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidatedAuthorizationCode": {
+        "type": "object",
+        "properties": {
+          "isValidAuthorizationCode": {
+            "type": "boolean"
+          },
+          "authorizationCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "authorizationReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "generatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "generatedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "usedOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidatedAuthorizationCodeAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ValidatedAuthorizationCode"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Vat5CertificateDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "projectNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "certificateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Vat5CertificateValidationRequest": {
+        "type": "object",
+        "properties": {
+          "projectNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "certificateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Vat5CertificateValidationResponse": {
+        "type": "object",
+        "properties": {
+          "projectNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "vat5CertificateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "number",
+            "format": "double"
+          },
+          "dateOfIssue": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "dateOfExpiry": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isValid": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Vat5CertificateValidationResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/Vat5CertificateValidationResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VoidReceiptCreateDto": {
+        "required": [
+          "reason",
+          "receiptNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "receiptNumber": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "reason": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "supportingDocuments": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VoidReceiptFilterDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "invoiceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VoidReceiptResponseDto": {
+        "type": "object",
+        "properties": {
+          "invoiceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "issueDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "requestedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "approvalStatus": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VoidReceiptResponseDtoAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/VoidReceiptResponseDto"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WarehouseInventoryItemDto": {
+        "type": "object",
+        "properties": {
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string",
+            "nullable": true
+          },
+          "productDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentQuantity": {
+            "type": "number",
+            "format": "double"
+          },
+          "uom": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WarehouseInventoryItemDtoGenericInventoryDtoResponse": {
+        "type": "object",
+        "properties": {
+          "stocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WarehouseInventoryItemDto"
+            },
+            "nullable": true
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WarehouseInventoryItemDtoGenericInventoryDtoResponseAPIResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/WarehouseInventoryItemDtoGenericInventoryDtoResponse"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/APIError"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Configuration",
+      "description": "Global, Terminal and Taxpayer Latest Configurations"
+    },
+    {
+      "name": "OnBoarding",
+      "description": "Device Activation Endpoints"
+    },
+    {
+      "name": "Utilities",
+      "description": "Provides utility endpoints for various operations"
+    },
+    {
+      "name": "Sales",
+      "description": "Sales Submission and Retrieval Endpoints"
+    },
+    {
+      "name": "StockOperations",
+      "description": "Stock Operations - Manages inventory transfers and warehouse inventory retrieval."
+    }
+  ]
+}
