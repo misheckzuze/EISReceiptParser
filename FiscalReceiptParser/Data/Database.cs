@@ -331,6 +331,14 @@ namespace FiscalReceiptParser.Data
                         LevyAmount REAL NOT NULL,
                         FOREIGN KEY(InvoiceNumber) REFERENCES Invoices(InvoiceNumber),
                         FOREIGN KEY(LevyId) REFERENCES Levies(Id)
+                    )",
+
+                    @"CREATE TABLE IF NOT EXISTS TerminalBlockingReasons (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        TerminalId TEXT,
+                        BlockingReason TEXT,
+                        IsUnblocked INTEGER,
+                        CreatedAt TEXT
                     )"
                 };
 

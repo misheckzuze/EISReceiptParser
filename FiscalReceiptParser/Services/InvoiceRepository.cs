@@ -496,5 +496,38 @@ namespace FiscalReceiptParser.Services
             return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
 
         }
+
+        public static int GetOfflineTransactionLimitHours()
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT MaxTransactionAgeInHours FROM OfflineLimit LIMIT 1";
+            var result = cmd.ExecuteScalar();
+            return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+        }
+
+        /// <summary>
+        /// Matches Java's getLastSuccessfulSyncTimeFromInvoices — despite the method name,
+        /// this actually returns the EARLIEST still-pending (State = 0) invoice's timestamp,
+        /// used as the starting point for "how long has this terminal been offline".
+        /// </summary>
+        public static DateTime? GetEarliestPendingInvoiceDateTime()
+        {
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT MIN(InvoiceDateTime) FROM Invoices WHERE State = 0";
+            var result = cmd.ExecuteScalar();
+
+            if (result == null || result == DBNull.Value) return null;
+
+            string? str = result as string;
+            if (string.IsNullOrEmpty(str)) return null;
+
+            if (DateTime.TryParse(str, null, System.Globalization.DateTimeStyles.RoundtripKind, out var dt))
+                return dt;
+
+            System.Diagnostics.Debug.WriteLine($"❌ Failed to parse InvoiceDateTime: {str}");
+            return null;
+        }
     }
 }

@@ -484,22 +484,40 @@ namespace FiscalReceiptParser
                     return;
                 }
 
+                var blockingCheck = await TerminalBlockingChecker.CheckAsync();
+                if (!blockingCheck.IsAllowed)
+                {
+                    MoveTo(path, _failedFolder!);
+                    LogActivity(fileName, "Terminal blocked", blockingCheck.Reason ?? "Terminal is blocked", ErrorColor);
+                    return;
+                }
+
+                var offlineLimitCheck = OfflineLimitChecker.Check();
+                if (!offlineLimitCheck.IsAllowed)
+                {
+                    MoveTo(path, _failedFolder!);
+                    LogActivity(fileName, "Offline limit reached",
+                        $"Offline for {offlineLimitCheck.HoursElapsed:0.0}h (limit {offlineLimitCheck.LimitHours}h) — sync before continuing",
+                        ErrorColor);
+                    return;
+                }
+
                 var result = await TransactionService.SubmitParsedInvoiceAsync(invoice, token);
 
                 if (result.Success)
                 {
                     MoveTo(path, _outputFolder!);
-                    LogActivity(fileName, "Fiscalised (online)", $"Invoice {result.InvoiceNumber}", SuccessColor);
+                    LogActivity(fileName, "Fiscalised (online)", $"Invoice {result.InvoiceNumber} — {result.Remark}", SuccessColor);
                 }
                 else if (result.IsOffline)
                 {
                     MoveTo(path, _outputFolder!);
-                    LogActivity(fileName, "Fiscalised (offline)", $"Invoice {result.InvoiceNumber} — queued for retry", WarningColor);
+                    LogActivity(fileName, "Fiscalised (offline)", $"Invoice {result.InvoiceNumber} — queued for retry: {result.Remark}", WarningColor);
                 }
                 else
                 {
                     MoveTo(path, _failedFolder!);
-                    LogActivity(fileName, "Rejected", "MRA rejected the submission", ErrorColor);
+                    LogActivity(fileName, "Rejected", $"MRA rejected the submission: {result.Remark}", ErrorColor);
                 }
             }
             catch (Exception ex)

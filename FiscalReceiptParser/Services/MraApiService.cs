@@ -409,6 +409,61 @@ public async Task<SubmitTransactionResult> SubmitSalesTransactionServiceAsync(Sa
                 System.Diagnostics.Debug.WriteLine($"❌ Failed to fetch latest config: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Ported from Java's checkIfTerminalIsBlocked — inferred shape since only its
+        /// call site was shown, not its body. Maps to the generated
+        /// CheckTerminalUnblockStatusAsync, which returns exactly the nullable
+        /// isUnblocked shape the Java caller checks for.
+        /// Returns null on any failure (network, non-1 business status), matching
+        /// Java's "checkResult == null" fallback-to-local-reason path.
+        /// </summary>
+        public async Task<TerminalUnblockStatusResponse?> CheckIfTerminalIsBlockedAsync(string terminalId, string bearerToken)
+        {
+            var generatedClient = new MraEisClient(MraBaseUrl, _httpClient);
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", bearerToken);
+
+            var body = new TerminalBlockRequest { TerminalId = terminalId };
+
+            try
+            {
+                var response = await generatedClient.CheckTerminalUnblockStatusAsync(body);
+                return response != null && response.StatusCode == 1 ? response.Data : null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Exception during checkIfTerminalIsBlocked: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Ported from Java's fetchBlockingMessage. Returns null on failure, matching
+        /// the Java version's onResult.accept(null) in the catch block.
+        /// </summary>
+        public async Task<TerminalBlockResponse?> FetchBlockingMessageAsync(string terminalId, string bearerToken)
+        {
+            var generatedClient = new MraEisClient(MraBaseUrl, _httpClient);
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", bearerToken);
+
+            var body = new TerminalBlockRequest { TerminalId = terminalId };
+
+            System.Diagnostics.Debug.WriteLine("Starting fetchBlockingMessage...");
+
+            try
+            {
+                var response = await generatedClient.GetTerminalBlockingMessageAsync(body);
+                System.Diagnostics.Debug.WriteLine($"Received response. StatusCode: {response?.StatusCode}");
+                return response != null && response.StatusCode == 1 ? response.Data : null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Exception during fetchBlockingMessage: {ex.Message}");
+                return null;
+            }
+        }
         /// <summary>
         /// Reads local hardware status for payload assignment matching.
         /// </summary>
