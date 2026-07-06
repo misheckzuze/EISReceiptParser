@@ -21,8 +21,7 @@ namespace FiscalReceiptParser.Services
         ///     SourceInvoiceNumber for reference/logging)
         /// </summary>
         public static async Task<SubmitSaleResult> SubmitParsedInvoiceAsync(
-     ParsedModels.InvoiceRoot parsedInvoice,
-     string bearerToken)
+    ParsedModels.InvoiceRoot parsedInvoice, string bearerToken)
         {
             if (parsedInvoice?.InvoiceLineItems == null || parsedInvoice.InvoiceLineItems.Count == 0)
                 throw new ArgumentException("Parsed invoice has no line items.");
@@ -34,28 +33,31 @@ namespace FiscalReceiptParser.Services
                 SourceInvoiceNumber = sourceInvoiceNumber
             };
 
-            // Reprint / duplicate-drop detection: if this exact source slip number has
-            // already been recorded, don't fiscalise it again — return the existing
-            // MRA invoice number/validation URL instead of generating a new invoice.
+            // 1. Check for duplicates
             var existing = InvoiceRepository.FindBySourceInvoiceNumber(sourceInvoiceNumber);
-            if (existing != null)
+            bool isDuplicate = existing != null;
+
+            string invoiceNumber;
+
+            if (isDuplicate)
             {
+                // Use the original invoice details instead of generating new ones
+                invoiceNumber = existing.InvoiceNumber;
                 result.InvoiceNumber = existing.InvoiceNumber;
                 result.ValidationUrl = existing.ValidationUrl;
                 result.Success = existing.State == 1;
                 result.IsOffline = existing.State == 0;
                 result.Remark = "Duplicate receipt — already fiscalised previously. Reprint only, not resubmitted.";
                 result.Warnings.Add($"Source receipt '{sourceInvoiceNumber}' already exists as MRA invoice {existing.InvoiceNumber} — skipped resubmission.");
-
-                // Still print, since this could be a genuine reprint request — but using
-                // the ORIGINAL invoice's data, not a freshly generated one.
-                // (See note below on reprinting from stored data.)
-                return result;
+            }
+            else
+            {
+                // Generate a brand new receipt number for fresh transactions
+                invoiceNumber = ReceiptNumberGenerator.GenerateNewReceiptNumber();
+                result.InvoiceNumber = invoiceNumber;
             }
 
-            string invoiceNumber = ReceiptNumberGenerator.GenerateNewReceiptNumber();
-            result.InvoiceNumber = invoiceNumber;
-
+            // Build common payload data structures
             var header = BuildInvoiceHeader(parsedInvoice.InvoiceHeader, invoiceNumber);
             var lineItems = BuildLineItems(parsedInvoice.InvoiceLineItems, result.Warnings);
             var (taxBreakdowns, levyBreakdowns, totalVat, invoiceTotal) = BuildSummaryParts(lineItems);
@@ -64,103 +66,109 @@ namespace FiscalReceiptParser.Services
                 ? (double)parsedInvoice.InvoiceSummary.AmountTendered
                 : invoiceTotal;
 
-            var summary = new InvoiceSummary
-            {
-                TaxBreakDown = taxBreakdowns,
-                LevyBreakDown = levyBreakdowns,
-                TotalVAT = totalVat,
-                OfflineSignature = "",
-                InvoiceTotal = invoiceTotal,
-                AmountTendered = amountTendered
-            };
-
-            bool saved = InvoiceRepository.SaveTransaction(
-                header, sourceInvoiceNumber, lineItems, taxBreakdowns, levyBreakdowns,
-                invoiceTotal, totalVat, "", "", isTransmitted: false,
-                header.PaymentMethod, amountTendered);
-
-            if (!saved)
-            {
-                result.Warnings.Add("Failed to save transaction locally.");
-            }
-
-            var invoicePayload = new SalesInvoice
-            {
-                InvoiceHeader = header,
-                InvoiceLineItems = lineItems,
-                InvoiceSummary = summary
-            };
-
-            using var httpClient = new System.Net.Http.HttpClient();
-            var service = new MraApiService(httpClient);
-            var apiResult = await service.SubmitSalesTransactionServiceAsync(invoicePayload, bearerToken);
-
-            if (apiResult.Success)
-            {
-                InvoiceRepository.UpdateValidationUrl(invoiceNumber, apiResult.ValidationUrl);
-                InvoiceRepository.MarkAsTransmitted(invoiceNumber);
-
-                result.Success = true;
-                result.ValidationUrl = apiResult.ValidationUrl;
-                result.IsOffline = false;
-                result.Remark = apiResult.WasDuplicate
-                    ? "Invoice already existed on MRA — marked as transmitted."
-                    : apiResult.Remark;
-            }
-            else
-            {
-                result.Success = false;
-                result.IsOffline = true;
-                result.Remark = apiResult.Remark;
-                result.Warnings.Add(apiResult.Remark);
-
-                try
-                {
-                    string? secretKey = ConfigHelper.GetSecretKey();
-                    if (!string.IsNullOrEmpty(secretKey))
-                    {
-                        var generationRequest = new InvoiceGenerationRequest
-                        {
-                            InvoiceNumber = invoiceNumber,
-                            NumItems = lineItems.Count,
-                            TransactionDate = header.InvoiceDateTime.DateTime,
-                            InvoiceTotal = invoiceTotal,
-                            VatAmount = totalVat
-                        };
-
-                        string validationUrl = OfflineReceiptSignature.GenerateOfflineReceiptSignature(generationRequest, secretKey);
-
-                        string offlineSignature = validationUrl.Contains("S=")
-                            ? validationUrl.Split(new[] { "S=" }, StringSplitOptions.None)[1]
-                            : "";
-
-                        InvoiceRepository.UpdateOfflineTransactionDetails(invoiceNumber, validationUrl, offlineSignature);
-                        result.ValidationUrl = validationUrl;
-                    }
-                    else
-                    {
-                        result.Warnings.Add("Could not generate offline signature — no secret key found locally.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    result.Warnings.Add($"Failed to generate offline receipt signature: {ex.Message}");
-                }
-            }
-
             double changeValue = amountTendered - invoiceTotal;
             if (changeValue < 0) changeValue = 0;
 
+            // 2. Fresh Transaction Track (Only Save and Submit if NOT a duplicate)
+            if (!isDuplicate)
+            {
+                var summary = new InvoiceSummary
+                {
+                    TaxBreakDown = taxBreakdowns,
+                    LevyBreakDown = levyBreakdowns,
+                    TotalVAT = totalVat,
+                    OfflineSignature = "",
+                    InvoiceTotal = invoiceTotal,
+                    AmountTendered = amountTendered
+                };
+
+                bool saved = InvoiceRepository.SaveTransaction(
+                    header, sourceInvoiceNumber, lineItems, taxBreakdowns, levyBreakdowns,
+                    invoiceTotal, totalVat, "", "", isTransmitted: false,
+                    header.PaymentMethod, amountTendered);
+
+                if (!saved)
+                {
+                    result.Warnings.Add("Failed to save transaction locally.");
+                }
+
+                var invoicePayload = new SalesInvoice
+                {
+                    InvoiceHeader = header,
+                    InvoiceLineItems = lineItems,
+                    InvoiceSummary = summary
+                };
+
+                using var httpClient = new System.Net.Http.HttpClient();
+                var service = new MraApiService(httpClient);
+                var apiResult = await service.SubmitSalesTransactionServiceAsync(invoicePayload, bearerToken);
+
+                if (apiResult.Success)
+                {
+                    InvoiceRepository.UpdateValidationUrl(invoiceNumber, apiResult.ValidationUrl);
+                    InvoiceRepository.MarkAsTransmitted(invoiceNumber);
+
+                    result.Success = true;
+                    result.ValidationUrl = apiResult.ValidationUrl;
+                    result.IsOffline = false;
+                    result.Remark = apiResult.WasDuplicate
+                        ? "Invoice already existed on MRA — marked as transmitted."
+                        : apiResult.Remark;
+                }
+                else
+                {
+                    result.Success = false;
+                    result.IsOffline = true;
+                    result.Remark = apiResult.Remark;
+                    result.Warnings.Add(apiResult.Remark);
+
+                    try
+                    {
+                        string? secretKey = ConfigHelper.GetSecretKey();
+                        if (!string.IsNullOrEmpty(secretKey))
+                        {
+                            var generationRequest = new InvoiceGenerationRequest
+                            {
+                                InvoiceNumber = invoiceNumber,
+                                NumItems = lineItems.Count,
+                                TransactionDate = header.InvoiceDateTime.DateTime,
+                                InvoiceTotal = invoiceTotal,
+                                VatAmount = totalVat
+                            };
+
+                            string validationUrl = OfflineReceiptSignature.GenerateOfflineReceiptSignature(generationRequest, secretKey);
+
+                            string offlineSignature = validationUrl.Contains("S=")
+                                ? validationUrl.Split(new[] { "S=" }, StringSplitOptions.None)[1]
+                                : "";
+
+                            InvoiceRepository.UpdateOfflineTransactionDetails(invoiceNumber, validationUrl, offlineSignature);
+                            result.ValidationUrl = validationUrl;
+                        }
+                        else
+                        {
+                            result.Warnings.Add("Could not generate offline signature — no secret key found locally.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Warnings.Add($"Failed to generate offline receipt signature: {ex.Message}");
+                    }
+                }
+            }
+
+            // 3. Printing Track (Runs for BOTH fresh transactions and duplicates)
             try
             {
                 EscPosReceiptPrinter.PrintReceipt(
                     header,
+                    sourceInvoiceNumber,
                     header.BuyerName,
                     header.BuyerTIN,
                     lineItems,
                     result.ValidationUrl,
                     amountTendered,
-                    changeValue,
+                    isDuplicate ? 0 : changeValue, // Optional: Force 0 change on reprint if preferred
                     taxBreakdowns,
                     levyBreakdowns);
 
