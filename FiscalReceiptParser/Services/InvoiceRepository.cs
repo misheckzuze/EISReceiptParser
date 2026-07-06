@@ -140,6 +140,7 @@ namespace FiscalReceiptParser.Services
         /// </summary>
         public static bool SaveTransaction(
             InvoiceHeader header,
+            string sourceInvoiceNumber,   // NEW
             IEnumerable<LineItemDto> lineItems,
             IEnumerable<TaxBreakDown> taxBreakdowns,
             IEnumerable<LevyBreakDown> levyBreakdowns,
@@ -161,16 +162,17 @@ namespace FiscalReceiptParser.Services
                     cmd.Transaction = transaction;
                     cmd.CommandText = @"
                         INSERT OR REPLACE INTO Invoices
-                            (InvoiceNumber, InvoiceDateTime, InvoiceTotal, SellerTin, BuyerTin,
+                            (InvoiceNumber, SourceInvoiceNumber, InvoiceDateTime, InvoiceTotal, SellerTin, BuyerTin,
                              TotalVAT, OfflineTransactionSignature, SiteId, ValidationUrl,
                              IsReliefSupply, State, PaymentId, AmountPaid)
                         VALUES
-                            ($invoiceNumber, $invoiceDateTime, $invoiceTotal, $sellerTin, $buyerTin,
+                            ($invoiceNumber, $sourceInvoiceNumber, $invoiceDateTime, $invoiceTotal, $sellerTin, $buyerTin,
                              $totalVat, $offlineSignature, $siteId, $validationUrl,
                              $isReliefSupply, $state, $paymentId, $amountPaid)";
 
                     cmd.Parameters.AddWithValue("$invoiceNumber", header.InvoiceNumber);
-                    cmd.Parameters.AddWithValue("$invoiceDateTime", header.InvoiceDateTime.ToString("O"));
+                    cmd.Parameters.AddWithValue("$sourceInvoiceNumber",
+                    string.IsNullOrEmpty(sourceInvoiceNumber) ? (object)DBNull.Value : sourceInvoiceNumber); cmd.Parameters.AddWithValue("$invoiceDateTime", header.InvoiceDateTime.ToString("O"));
                     cmd.Parameters.AddWithValue("$invoiceTotal", invoiceTotal);
                     cmd.Parameters.AddWithValue("$sellerTin", header.SellerTIN ?? "");
                     cmd.Parameters.AddWithValue("$buyerTin", header.BuyerTIN ?? "");
@@ -527,6 +529,44 @@ namespace FiscalReceiptParser.Services
                 return dt;
 
             System.Diagnostics.Debug.WriteLine($"❌ Failed to parse InvoiceDateTime: {str}");
+            return null;
+        }
+
+        /// <summary>
+        /// Looks up a previously saved invoice by the SOURCE receipt's own number
+        /// (e.g. "T1-S3" from the till slip) — used to detect reprints/duplicate
+        /// PDF drops before generating a new MRA invoice number and resubmitting.
+        /// </summary>
+        public class ExistingInvoiceLookup
+        {
+            public string InvoiceNumber { get; set; } = "";
+            public string ValidationUrl { get; set; } = "";
+            public int State { get; set; } // 0 = pending, 1 = transmitted
+        }
+
+        public static ExistingInvoiceLookup? FindBySourceInvoiceNumber(string sourceInvoiceNumber)
+        {
+            if (string.IsNullOrWhiteSpace(sourceInvoiceNumber)) return null;
+
+            using var conn = Database.ConnOpen();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+        SELECT InvoiceNumber, ValidationUrl, State
+        FROM Invoices
+        WHERE SourceInvoiceNumber = $sourceInvoiceNumber
+        LIMIT 1";
+            cmd.Parameters.AddWithValue("$sourceInvoiceNumber", sourceInvoiceNumber);
+            using var reader = cmd.ExecuteReader();
+
+            if (reader.Read())
+            {
+                return new ExistingInvoiceLookup
+                {
+                    InvoiceNumber = reader.GetString(0),
+                    ValidationUrl = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                    State = reader.IsDBNull(2) ? 0 : (int)reader.GetInt64(2)
+                };
+            }
             return null;
         }
     }
