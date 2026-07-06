@@ -28,7 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-           
+            SuspendLayout();
+            // 
+            // ActivationForm
+            // 
+            ClientSize = new Size(274, 229);
+            Name = "ActivationForm";
+            Load += ActivationForm_Load_1;
+            ResumeLayout(false);
+
         }
 
         #endregion

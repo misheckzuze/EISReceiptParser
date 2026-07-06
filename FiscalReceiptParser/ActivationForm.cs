@@ -322,5 +322,10 @@ namespace FiscalReceiptParser
                 SetBusy(false);
             }
         }
+
+        private void ActivationForm_Load_1(object sender, EventArgs e)
+        {
+
+        }
     }
 }

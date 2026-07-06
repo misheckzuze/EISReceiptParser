@@ -99,7 +99,7 @@ namespace FiscalReceiptParser.Services
 
             using (var cmd = conn.CreateCommand())
             {
-                cmd.CommandText = "SELECT ProductCode, TaxRateId FROM Products WHERE ProductName = $desc COLLATE NOCASE LIMIT 1";
+                cmd.CommandText = "SELECT ProductCode, TaxRateId, IsProduct FROM Products WHERE ProductName = $desc COLLATE NOCASE LIMIT 1";
                 cmd.Parameters.AddWithValue("$desc", description);
                 using var reader = cmd.ExecuteReader();
                 if (reader.Read())
@@ -108,6 +108,7 @@ namespace FiscalReceiptParser.Services
                     {
                         ProductCode = reader.IsDBNull(0) ? "" : reader.GetString(0),
                         TaxRateId = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                        IsProduct = !reader.IsDBNull(2) && reader.GetInt64(2) == 1,
                         Found = true
                     };
                 }
@@ -115,7 +116,7 @@ namespace FiscalReceiptParser.Services
 
             using (var cmd = conn.CreateCommand())
             {
-                cmd.CommandText = "SELECT ProductCode, TaxRateId FROM Products WHERE Description = $desc COLLATE NOCASE LIMIT 1";
+                cmd.CommandText = "SELECT ProductCode, TaxRateId, IsProduct FROM Products WHERE Description = $desc COLLATE NOCASE LIMIT 1";
                 cmd.Parameters.AddWithValue("$desc", description);
                 using var reader = cmd.ExecuteReader();
                 if (reader.Read())
@@ -124,6 +125,7 @@ namespace FiscalReceiptParser.Services
                     {
                         ProductCode = reader.IsDBNull(0) ? "" : reader.GetString(0),
                         TaxRateId = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                        IsProduct = !reader.IsDBNull(2) && reader.GetInt64(2) == 1,
                         Found = true
                     };
                 }

@@ -9,12 +9,21 @@ namespace FiscalReceiptParser.Services
     /// </summary>
     public static class ConfigHelper
     {
+        private const string VendorAccessKey = "B4UH-PJUL-TY7C-I2ZA";
         public static string? GetActivationCode()
         {
             using var conn = Database.ConnOpen();
             using var cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT ActivationCode FROM ActivationCode LIMIT 1";
             return cmd.ExecuteScalar() as string;
+        }
+
+        /// <summary>
+        /// Gets the global MRA Vendor Access Key.
+        /// </summary>
+        public static string GetVendorAccessKey()
+        {
+            return VendorAccessKey;
         }
 
         public static string? GetSecretKey()

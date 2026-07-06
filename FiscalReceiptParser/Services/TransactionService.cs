@@ -212,8 +212,8 @@ namespace FiscalReceiptParser.Services
         /// inferred from the source receipt's printed tax line.
         /// </summary>
         private static List<LineItemDto> BuildLineItems(
-            List<ParsedModels.InvoiceLineItem> parsedItems,
-            List<string> warnings)
+         List<ParsedModels.InvoiceLineItem> parsedItems,
+         List<string> warnings)
         {
             var lineItems = new List<LineItemDto>();
             int id = 1;
@@ -224,14 +224,14 @@ namespace FiscalReceiptParser.Services
 
                 string productCode = product.Found ? product.ProductCode : "";
                 string taxRateId = product.Found ? product.TaxRateId : (parsed.TaxRateId ?? "");
+                bool isProduct = product.Found ? product.IsProduct : parsed.IsProduct;
 
                 if (!product.Found)
                 {
                     warnings.Add($"No product match for \"{parsed.Description}\" — falling back to parser's guessed tax rate id \"{taxRateId}\".");
                 }
 
-                double grossTotal = (double)parsed.Total; // trust the price actually charged, as parsed
-
+                double grossTotal = (double)parsed.Total;
                 double rate = InvoiceRepository.GetTaxRatePercent(taxRateId);
                 double taxable = Math.Round(grossTotal / (1 + rate / 100.0), 2);
                 double vat = Math.Round(grossTotal - taxable, 2);
@@ -247,13 +247,12 @@ namespace FiscalReceiptParser.Services
                     Total = grossTotal,
                     TotalVAT = vat,
                     TaxRateId = taxRateId,
-                    IsProduct = parsed.IsProduct
+                    IsProduct = isProduct   // was: parsed.IsProduct (always true from the parser)
                 });
             }
 
             return lineItems;
         }
-
         /// <summary>
         /// Extracted so both a fresh sale and a resend can regenerate the tax breakdown
         /// from line items the same way — matches Java's Helper.generateTaxBreakdown.

@@ -14,6 +14,7 @@ namespace FiscalReceiptParser.Models
     {
         public string ProductCode { get; set; } = "";
         public string TaxRateId { get; set; } = "";
+        public bool IsProduct { get; set; } = true; // default true if not found, matching prior behavior
         public bool Found { get; set; }
     }
 }

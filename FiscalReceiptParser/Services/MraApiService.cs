@@ -14,7 +14,7 @@ namespace FiscalReceiptParser.Services
     public class MraApiService
     {
         private readonly HttpClient _httpClient;
-        private const string MraBaseUrl = "https://dev-eis-api.mra.mw";
+        private const string MraBaseUrl = "https://eis-api.mra.mw";
 
         public MraApiService(HttpClient httpClient)
         {
@@ -28,6 +28,8 @@ namespace FiscalReceiptParser.Services
         {
             // Instantiates the NSwag client using the layout you provided
             var generatedClient = new MraEisClient(MraBaseUrl, _httpClient);
+            _httpClient.DefaultRequestHeaders.Remove("x-access-key");
+            _httpClient.DefaultRequestHeaders.Add("x-access-key", ConfigHelper.GetVendorAccessKey());
 
             try
             {// 1. Map parameters using clean implicit target typing
@@ -52,7 +54,7 @@ namespace FiscalReceiptParser.Services
                 };
                 // Log the exact outgoing payload before it's sent, so we can see whether
                // it's well-formed and matches what the MRA API expects field-for-field.
-               string payloadJson = System.Text.Json.JsonSerializer.Serialize(activationPayload, new JsonSerializerOptions
+               string payloadJson = JsonSerializer.Serialize(activationPayload, new JsonSerializerOptions
                {
                  WriteIndented = true
              });
@@ -69,7 +71,7 @@ namespace FiscalReceiptParser.Services
                     System.Diagnostics.Debug.WriteLine(response.Data);
 
                     // Convert the response object back to a JSON string so your parser method can read it
-                    string rawJson = System.Text.Json.JsonSerializer.Serialize(response);
+                    string rawJson = JsonSerializer.Serialize(response);
 
                     bool isDbSaveSuccessful = await IsActivationSuccessfulAsync(rawJson, code);
 
@@ -302,14 +304,14 @@ namespace FiscalReceiptParser.Services
         }
 
 
-/// <summary>
-/// Submits a sales transaction. Ported from Java's submitTransactions.
-/// The generated client's 400-response branch already parses the body into
-/// ObjectAPIResponse for us via ApiException&lt;ObjectAPIResponse&gt;, so the
-/// "Invoice Number already exists" (statusCode -2) case is read straight off
-/// ex.Result rather than needing manual JSON parsing like the Java version did.
-/// </summary>
-public async Task<SubmitTransactionResult> SubmitSalesTransactionServiceAsync(SalesInvoice invoice, string bearerToken)
+        /// <summary>
+        /// Submits a sales transaction. Ported from Java's submitTransactions.
+        /// The generated client's 400-response branch already parses the body into
+        /// ObjectAPIResponse for us via ApiException&lt;ObjectAPIResponse&gt;, so the
+        /// "Invoice Number already exists" (statusCode -2) case is read straight off
+        /// ex.Result rather than needing manual JSON parsing like the Java version did.
+        /// </summary>
+        public async Task<SubmitTransactionResult> SubmitSalesTransactionServiceAsync(SalesInvoice invoice, string bearerToken)
         {
             var generatedClient = new MraEisClient(MraBaseUrl, _httpClient);
             var result = new SubmitTransactionResult();
@@ -371,6 +373,27 @@ public async Task<SubmitTransactionResult> SubmitSalesTransactionServiceAsync(Sa
                 // Genuine network failure — no response at all. Java's catch-all "success = false"
                 // covers this too; the caller treats it as "went offline", same outcome.
                 System.Diagnostics.Debug.WriteLine($"❌ Network error during transaction submission: {ex.Message}");
+            }
+
+            // --- TRIGGER LATEST CONFIGURATION DOWNLOAD ---
+            // Check if the property returned by the API evaluates to true
+            if (result.ShouldDownloadLatestConfig == true)
+            {
+                try
+                {
+                    System.Diagnostics.Debug.WriteLine("⚙️ Flag 'ShouldDownloadLatestConfig' is true. Fetching updates...");
+
+                    // Invoke the download function using the existing bearer token
+                    await FetchLatestConfigAsync(bearerToken);
+
+                    System.Diagnostics.Debug.WriteLine("⚙️ Latest configuration fetched and applied successfully.");
+                }
+                catch (Exception ex)
+                {
+                    // Wrapped in a separate try-catch block so that if downloading config fails,
+                    // it won't crash the main invoice response processing workflow.
+                    System.Diagnostics.Debug.WriteLine($"⚠️ Failed to fetch latest configuration: {ex.Message}");
+                }
             }
 
             return result;

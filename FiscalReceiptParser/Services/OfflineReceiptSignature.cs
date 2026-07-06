@@ -17,7 +17,7 @@ namespace FiscalReceiptParser.Services
     {
         // TODO: confirm the real value of ApiEndpoints.OFFLINE_VALIDATION_BASE_URL.
         // This is a placeholder based on the pattern of your other MRA endpoints.
-        private const string OfflineValidationBaseUrl = "https://dev-eis-portal.mra.mw/ReceiptValidation/Validate";
+        private const string OfflineValidationBaseUrl = "https://eis-portal.mra.mw/ReceiptValidation/Validate";
 
         /// <summary>
         /// Ported from Java's generateOfflineReceiptSignature. Builds the query-string
