@@ -21,16 +21,37 @@ namespace FiscalReceiptParser.Services
         ///     SourceInvoiceNumber for reference/logging)
         /// </summary>
         public static async Task<SubmitSaleResult> SubmitParsedInvoiceAsync(
-         InvoiceRoot parsedInvoice,
-         string bearerToken)
+     ParsedModels.InvoiceRoot parsedInvoice,
+     string bearerToken)
         {
             if (parsedInvoice?.InvoiceLineItems == null || parsedInvoice.InvoiceLineItems.Count == 0)
                 throw new ArgumentException("Parsed invoice has no line items.");
 
+            string sourceInvoiceNumber = parsedInvoice.InvoiceHeader?.InvoiceNumber ?? "";
+
             var result = new SubmitSaleResult
             {
-                SourceInvoiceNumber = parsedInvoice.InvoiceHeader?.InvoiceNumber ?? ""
+                SourceInvoiceNumber = sourceInvoiceNumber
             };
+
+            // Reprint / duplicate-drop detection: if this exact source slip number has
+            // already been recorded, don't fiscalise it again — return the existing
+            // MRA invoice number/validation URL instead of generating a new invoice.
+            var existing = InvoiceRepository.FindBySourceInvoiceNumber(sourceInvoiceNumber);
+            if (existing != null)
+            {
+                result.InvoiceNumber = existing.InvoiceNumber;
+                result.ValidationUrl = existing.ValidationUrl;
+                result.Success = existing.State == 1;
+                result.IsOffline = existing.State == 0;
+                result.Remark = "Duplicate receipt — already fiscalised previously. Reprint only, not resubmitted.";
+                result.Warnings.Add($"Source receipt '{sourceInvoiceNumber}' already exists as MRA invoice {existing.InvoiceNumber} — skipped resubmission.");
+
+                // Still print, since this could be a genuine reprint request — but using
+                // the ORIGINAL invoice's data, not a freshly generated one.
+                // (See note below on reprinting from stored data.)
+                return result;
+            }
 
             string invoiceNumber = ReceiptNumberGenerator.GenerateNewReceiptNumber();
             result.InvoiceNumber = invoiceNumber;
@@ -54,7 +75,7 @@ namespace FiscalReceiptParser.Services
             };
 
             bool saved = InvoiceRepository.SaveTransaction(
-                header, lineItems, taxBreakdowns, levyBreakdowns,
+                header, sourceInvoiceNumber, lineItems, taxBreakdowns, levyBreakdowns,
                 invoiceTotal, totalVat, "", "", isTransmitted: false,
                 header.PaymentMethod, amountTendered);
 
@@ -109,8 +130,6 @@ namespace FiscalReceiptParser.Services
 
                         string validationUrl = OfflineReceiptSignature.GenerateOfflineReceiptSignature(generationRequest, secretKey);
 
-                        // Matches Java's validationUrl.split("S=")[1] — the signature stored
-                        // separately is everything after "S=" in the URL (already URL-encoded).
                         string offlineSignature = validationUrl.Contains("S=")
                             ? validationUrl.Split(new[] { "S=" }, StringSplitOptions.None)[1]
                             : "";
@@ -129,10 +148,6 @@ namespace FiscalReceiptParser.Services
                 }
             }
 
-            // Print regardless of online/offline outcome — both branches above have
-            // already set result.ValidationUrl (from MRA on success, or the locally
-            // signed offline URL on failure), matching the Java flow where
-            // EscPosReceiptPrinter.printReceipt is called identically either way.
             double changeValue = amountTendered - invoiceTotal;
             if (changeValue < 0) changeValue = 0;
 
@@ -158,7 +173,6 @@ namespace FiscalReceiptParser.Services
 
             return result;
         }
-
         private static InvoiceHeader BuildInvoiceHeader(ParsedModels.InvoiceHeader parsedHeader, string invoiceNumber)
         {
             return new InvoiceHeader

@@ -138,6 +138,7 @@ namespace FiscalReceiptParser.Data
 
                     @"CREATE TABLE IF NOT EXISTS Invoices (
                         InvoiceNumber TEXT PRIMARY KEY,
+                        SourceInvoiceNumbe TEXT,
                         InvoiceDateTime TEXT,
                         InvoiceTotal REAL,
                         SellerTin TEXT,
@@ -347,6 +348,20 @@ namespace FiscalReceiptParser.Data
                     using var cmd = conn.CreateCommand();
                     cmd.CommandText = sql;
                     cmd.ExecuteNonQuery();
+                }
+                // One-time migration for databases created before SourceInvoiceNumber existed.
+                try
+                {
+                    using var checkCmd = conn.CreateCommand();
+                    checkCmd.CommandText = "SELECT SourceInvoiceNumber FROM Invoices LIMIT 1";
+                    checkCmd.ExecuteScalar();
+                }
+                catch (SqliteException)
+                {
+                    using var alterCmd = conn.CreateCommand();
+                    alterCmd.CommandText = "ALTER TABLE Invoices ADD COLUMN SourceInvoiceNumber TEXT";
+                    alterCmd.ExecuteNonQuery();
+                    System.Diagnostics.Debug.WriteLine("Migrated: added SourceInvoiceNumber column to Invoices.");
                 }
 
                 Console.WriteLine($"All SQLite tables created and initialized at: {DbPath}");
