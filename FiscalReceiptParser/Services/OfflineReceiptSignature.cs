@@ -44,7 +44,7 @@ namespace FiscalReceiptParser.Services
                 request.VatAmount,
                 julianBase64);
 
-            string offlineDataSignature = ComputeHmacWithSha256(param, secretKey);
+            string offlineDataSignature = ComputeHmacSha256(param, secretKey);
 
             try
             {
@@ -63,6 +63,18 @@ namespace FiscalReceiptParser.Services
             using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
             byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
             return Convert.ToBase64String(hashBytes);
+        }
+
+        private static string ComputeHmacSha256(string plainText, string secretKey)
+        {
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
+            {
+                byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(plainText));
+                return Convert.ToBase64String(hash)
+                              .Replace("+", "-")
+                              .Replace("/", "_")
+                              .TrimEnd('=');
+            }
         }
     }
 }
