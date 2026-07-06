@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="EISReceiptParserInstaller/EISReceiptParserInstaller.vdproj" Type="Installer">
+    <Build />
+  </Project>
   <Project Path="FiscalReceiptParser/FiscalReceiptParser.csproj" />
 </Solution>

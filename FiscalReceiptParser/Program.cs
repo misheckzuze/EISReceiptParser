@@ -12,7 +12,7 @@ namespace FiscalReceiptParser
         {
             // See https://aka.ms/applicationconfiguration.
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            ApplicationConfiguration.Initialize();
+            //ApplicationConfiguration.Initialize();
 
             Database.InitializeDatabase();
 
@@ -22,6 +22,8 @@ namespace FiscalReceiptParser
                 ServiceBase.Run(new EisFiscalisationWindowsService());
                 return;
             }
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
             // Run as desktop application
             BackgroundSyncScheduler.Start();
