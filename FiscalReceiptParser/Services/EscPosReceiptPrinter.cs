@@ -27,6 +27,7 @@ namespace FiscalReceiptParser.Services
 
         public static void PrintReceipt(
             InvoiceHeader invoiceHeader,
+            string? sourceInvoiceNumber,
             string buyersName,
             string buyersTIN,
             List<LineItemDto> lineItems,
@@ -70,7 +71,7 @@ namespace FiscalReceiptParser.Services
 
                 output.Write(EscEmphasizeOn);
                 WriteText(output, "*** TAX INVOICE ***");
-                output.Write(EscEmphasizeOff);
+                WriteText(output, !string.IsNullOrWhiteSpace(sourceInvoiceNumber) ? $"Slip #: {sourceInvoiceNumber}" : string.Empty); output.Write(EscEmphasizeOff);
                 output.Write(Lf);
 
                 PrintDivider(output);
