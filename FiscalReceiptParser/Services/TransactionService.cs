@@ -60,6 +60,16 @@ namespace FiscalReceiptParser.Services
             // Build common payload data structures
             var header = BuildInvoiceHeader(parsedInvoice.InvoiceHeader, invoiceNumber);
             var lineItems = BuildLineItems(parsedInvoice.InvoiceLineItems, result.Warnings);
+            // Stock check happens BEFORE any local save or MRA submission — a sale that
+            var stockCheck = InvoiceRepository.ValidateAndReserveStock(lineItems);
+            if (!stockCheck.IsSufficient)
+            {
+                result.Success = false;
+                result.IsOutOfStock = true;
+                result.Remark = "Insufficient stock for one or more items.";
+                result.Warnings.AddRange(stockCheck.InsufficientItems);
+                return result;
+            }
             var (taxBreakdowns, levyBreakdowns, totalVat, invoiceTotal) = BuildSummaryParts(lineItems);
 
             double amountTendered = parsedInvoice.InvoiceSummary != null

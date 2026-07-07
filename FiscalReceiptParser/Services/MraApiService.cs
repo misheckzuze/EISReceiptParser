@@ -8,13 +8,16 @@ using System.Net.NetworkInformation;
 using System.Text.Json;
 using FiscalReceiptParser.Models;
 using System.Threading.Tasks;
+using System.Text;
 
 namespace FiscalReceiptParser.Services
 {
     public class MraApiService
     {
         private readonly HttpClient _httpClient;
-        private const string MraBaseUrl = "https://eis-api.mra.mw";
+        private const string MraBaseUrl = "https://dev-eis-api.mra.mw";
+        public const string GoogleSheetUrl = "https://script.google.com/macros/s/AKfycby7jLrR6XdD710E7h_YbyfL40WVceKfdLSEqP3h5W6ilE1F9EDBDK8QTcooiVaOc6SAeg/exec";
+
 
         public MraApiService(HttpClient httpClient)
         {
@@ -125,6 +128,8 @@ namespace FiscalReceiptParser.Services
                     {
                         await ActivationDataInserter.InsertActivationDataAsync(responseBody);
                         await ActivationDataInserter.InsertActivationCodeAsync(code);
+                        // Sync to Google Sheets.
+                        SyncWithBackoffice(responseBody);
 
                         return true;
                     }
@@ -145,6 +150,45 @@ namespace FiscalReceiptParser.Services
                 Console.Error.WriteLine($"Raw response: {responseBody}");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Ported from Java's syncWithBackoffice. Fire-and-forget by design — a failed
+        /// or slow Google Sheets sync should never block or fail terminal activation,
+        /// matching Java's use of sendAsync + exceptionally rather than a blocking call.
+        /// </summary>
+        private void SyncWithBackoffice(string jsonPayload)
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var syncClient = new HttpClient
+                    {
+                        Timeout = TimeSpan.FromSeconds(10)
+                    };
+                    // HttpClient follows redirects by default (unlike Java's HttpClient,
+                    // which needs an explicit .followRedirects() builder option) — Google
+                    // Apps Script endpoints commonly respond with a 302, so this matters.
+
+                    var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+                    var response = await syncClient.PostAsync(GoogleSheetUrl, content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string body = await response.Content.ReadAsStringAsync();
+                        System.Diagnostics.Debug.WriteLine($"✅ Backoffice Sync Successful: {body}");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"❌ Backoffice Sync Failed. Status: {(int)response.StatusCode}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ Error during Backoffice Sync: {ex.Message}");
+                }
+            });
         }
 
         /// <summary>

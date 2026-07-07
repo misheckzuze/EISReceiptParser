@@ -514,6 +514,11 @@ namespace FiscalReceiptParser
                     MoveTo(path, _outputFolder!);
                     LogActivity(fileName, "Fiscalised (offline)", $"Invoice {result.InvoiceNumber} — queued for retry: {result.Remark}", WarningColor);
                 }
+                else if (result.IsOutOfStock)
+                {
+                    MoveTo(path, _failedFolder!);
+                    LogActivity(fileName, "Out of stock", string.Join("; ", result.Warnings), ErrorColor);
+                }
                 else
                 {
                     MoveTo(path, _failedFolder!);

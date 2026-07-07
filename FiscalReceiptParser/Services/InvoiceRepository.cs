@@ -571,5 +571,93 @@ namespace FiscalReceiptParser.Services
             }
             return null;
         }
+
+        /// <summary>
+        /// Validates stock for every product line item and, only if everything is
+        /// sufficient, decrements Products.Quantity in the same transaction — so the
+        /// check-then-decrement is atomic against a second sale racing in on the same
+        /// product between the check and the write. If ANY item is short, nothing is
+        /// decremented at all (all-or-nothing for the whole sale).
+        ///
+        /// Service line items (IsProduct == false) and items with no resolved
+        /// ProductCode (unmatched against the local catalog) are skipped — there's
+        /// nothing to validate/decrement stock against for those.
+        /// </summary>
+        public static StockValidationResult ValidateAndReserveStock(List<LineItemDto> lineItems)
+        {
+            var result = new StockValidationResult();
+
+            using var conn = Database.ConnOpen();
+            using var transaction = conn.BeginTransaction();
+
+            try
+            {
+                // Group by ProductCode in case the same product appears as multiple line items.
+                var neededByProduct = lineItems
+                    .Where(i => i.IsProduct && !string.IsNullOrEmpty(i.ProductCode))
+                    .GroupBy(i => i.ProductCode)
+                    .ToDictionary(g => g.Key, g => g.Sum(i => i.Quantity));
+
+                var currentQuantities = new Dictionary<string, double>();
+                var productNames = new Dictionary<string, string>();
+
+                foreach (var productCode in neededByProduct.Keys)
+                {
+                    using var cmd = conn.CreateCommand();
+                    cmd.Transaction = transaction;
+                    cmd.CommandText = "SELECT Quantity, ProductName FROM Products WHERE ProductCode = $code";
+                    cmd.Parameters.AddWithValue("$code", productCode);
+                    using var reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        currentQuantities[productCode] = reader.GetDouble(0);
+                        productNames[productCode] = reader.IsDBNull(1) ? productCode : reader.GetString(1);
+                    }
+                    // If not found: can't validate against a record that isn't there —
+                    // skip rather than block, same reasoning as the description-match
+                    // fallback elsewhere.
+                }
+
+                foreach (var (productCode, neededQty) in neededByProduct)
+                {
+                    if (!currentQuantities.TryGetValue(productCode, out var available)) continue;
+
+                    if (available < neededQty)
+                    {
+                        string name = productNames.TryGetValue(productCode, out var n) ? n : productCode;
+                        result.IsSufficient = false;
+                        result.InsufficientItems.Add($"{name} (available: {available}, requested: {neededQty})");
+                    }
+                }
+
+                if (!result.IsSufficient)
+                {
+                    transaction.Rollback();
+                    return result;
+                }
+
+                foreach (var (productCode, neededQty) in neededByProduct)
+                {
+                    using var cmd = conn.CreateCommand();
+                    cmd.Transaction = transaction;
+                    cmd.CommandText = "UPDATE Products SET Quantity = Quantity - $qty WHERE ProductCode = $code";
+                    cmd.Parameters.AddWithValue("$qty", neededQty);
+                    cmd.Parameters.AddWithValue("$code", productCode);
+                    cmd.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                System.Diagnostics.Debug.WriteLine($"❌ Stock validation/decrement failed: {ex.Message}");
+                result.IsSufficient = false;
+                result.InsufficientItems.Add("Internal error while checking stock — transaction cancelled.");
+                return result;
+            }
+        }
     }
 }
